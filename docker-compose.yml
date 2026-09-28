@@ -1,4 +1,4 @@
-﻿version: "3.8"
+version: "3.8"
 services:
   db:
     image: postgres:14
@@ -11,10 +11,10 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  jupyter:
+  streamlit-app:
     build: .
     ports:
-      - "8888:8888"
+      - "8501:8501"
     volumes:
       - .:/app
     depends_on:
