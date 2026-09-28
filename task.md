@@ -1,0 +1,5 @@
+- [x] Phase 1: Project Scaffold & Data Layer
+- [x] Phase 2: Python Source Modules
+- [x] Phase 3: Notebooks
+- [x] Phase 4: Dashboards & Power BI Guide
+- [x] Phase 5: Tests & CI

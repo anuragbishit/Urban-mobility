@@ -1,0 +1,2 @@
+﻿-- Ingest Data
+-- COPY trips FROM '/path/to/trips_sample.csv' DELIMITER ',' CSV HEADER;
