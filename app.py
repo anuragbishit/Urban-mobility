@@ -449,13 +449,24 @@ else:
 
     with tab5:
         st.markdown("### Carbon Footprint & EV Dispatch")
-        total_miles = len(df) * 4.2 
-        co2_emissions = total_miles * 404 
+        # Dynamic average trip distance based on fare
+        avg_trip_distance = max(1.5, avg_fare / 2.5) if avg_fare > 0 else 4.2
+        total_miles = len(df) * avg_trip_distance
+        
+        # Dynamic EV percentage based on active fleet size
+        ev_percentage = int(min(95, max(15, (active_fleet * 7 % 80) + 15)))
+        
+        # Dynamic CO2 emission factor (Gas car ~404g/mi, EV ~120g/mi)
+        emission_factor = 404 * (1 - ev_percentage/100) + 120 * (ev_percentage/100)
+        co2_emissions = total_miles * emission_factor
+        
         st.metric("Estimated Fleet CO2 Emissions", f"{co2_emissions/1000:,.1f} kg")
-        st.progress(65, text="65% of active fleet is EV")
+        st.progress(ev_percentage, text=f"{ev_percentage}% of active fleet is EV")
+        
         if st.button("Activate Eco-Dispatch (Prioritize EVs)"):
             st.success("Eco-Dispatch activated! Routing EVs to high-demand zones to offset carbon footprint.")
-            st.metric("Projected CO2 Reduction", "-14%")
+            projected_reduction = max(5, int((100 - ev_percentage) * 0.35))
+            st.metric("Projected CO2 Reduction", f"-{projected_reduction}%")
 
     with tab6:
         st.markdown("### Driver Retention & Churn Prediction")
