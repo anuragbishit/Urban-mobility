@@ -471,17 +471,49 @@ else:
             st.success("Bonuses deployed! Churn risk mitigated for top 5 at-risk drivers.")
 
     with tab7:
-        st.markdown("### 🤖 Chat with your Data")
+        st.markdown("### 🤖 Chat with your Data ")
+        
+        api_key = st.text_input("Enter your Google Gemini API Key:", type="password", key="gemini_api_key", help="Get a free API key at aistudio.google.com")
         ai_query = st.text_input("Ask a question about the current dataset:")
+        
         if st.button("Ask AI"):
-            with st.spinner("AI is analyzing data..."):
-                import time; time.sleep(1)
-                if "revenue" in ai_query.lower() or "fare" in ai_query.lower():
-                    st.info(f"**AI Insight:** The total revenue in this view is ${total_req * avg_fare:,.2f}. The average fare is ${avg_fare:.2f}.")
-                elif "surge" in ai_query.lower() or "demand" in ai_query.lower():
-                    st.info(f"**AI Insight:** Current demand is {total_req} requests with a surge multiplier of {surge_multiplier:.1f}x.")
-                else:
-                    st.info(f"**AI Insight:** I've analyzed the {total_req} trips in this dataset. The highest demand zones are seeing consistent pickups. Consider rebalancing drivers to optimize coverage.")
+            if not api_key:
+                st.warning("Please enter your Gemini API Key above.")
+            elif not ai_query:
+                st.warning("Please enter a question.")
+            else:
+                with st.spinner("AI is analyzing data..."):
+                    try:
+                        from google import genai
+                        client = genai.Client(api_key=api_key)
+                        
+                        data_summary = f"""
+                        Dataset Summary:
+                        - Total Requests: {total_req}
+                        - Average Fare: ${avg_fare:.2f}
+                        - Total Revenue: ${total_req * avg_fare:.2f}
+                        - Current Surge Multiplier: {surge_multiplier:.1f}x
+                        
+                        Sample of the data (first 5 rows):
+                        {df.head().to_string()}
+                        
+                        Summary statistics of numerical columns:
+                        {df.describe().to_string()}
+                        """
+                        
+                        prompt = f"""You are an expert data analyst AI for a ride-hailing company.
+                        Based on the following data context, answer the user's question concisely and accurately.
+                        
+                        Context:
+                        {data_summary}
+                        
+                        User Question: {ai_query}
+                        """
+                        
+                        response = client.models.generate_content(model="gemini-3.8-flash", contents=prompt)
+                        st.info(f"**AI Insight:** {response.text}")
+                    except Exception as e:
+                        st.error(f"Error communicating with AI: {e}")
 
     st.markdown("<br>", unsafe_allow_html=True)
     with st.expander("🔍 VIEW RAW DATA LOGS"):

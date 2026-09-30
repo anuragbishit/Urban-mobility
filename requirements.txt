@@ -51,3 +51,4 @@ streamlit>=1.30.0
 pydeck>=0.8.0
 geopy>=2.4.1
 requests>=2.31.0
+google-genai>=0.2.0
